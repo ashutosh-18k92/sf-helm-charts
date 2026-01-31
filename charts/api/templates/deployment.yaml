@@ -46,7 +46,7 @@ spec:
           env:
             {{- range $key, $value := $.Values.env }}
             - name: {{ $key }}
-              value: {{ $value }}
+              value: {{ $value | quote }}
             {{- end }}
           {{- end }}
           {{- with .Values.envFrom }}
