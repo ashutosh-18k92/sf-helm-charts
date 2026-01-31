@@ -1,0 +1,48 @@
+# Staging environment overrides
+
+environment: stage
+
+# Two replicas for staging
+replicaCount: 2
+
+image:
+  # Use versioned staging image
+  tag: "stage-v1.0.0"
+
+# Staging resource limits
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+# Staging environment variables (override base)
+env:
+  NODE_ENV: "staging"
+  LOG_LEVEL: "warn"
+
+# Standard health checks for staging
+healthCheck:
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Standard Istio sidecar for staging
+podAnnotations:
+  sidecar.istio.io/proxyCPU: "100m"
+  sidecar.istio.io/proxyMemory: "128Mi"
+  sidecar.istio.io/rewriteAppHTTPProbers: "true"
+
+# Enable PDB for staging
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# No autoscaling in staging (fixed replicas for testing)
+autoscaling:
+  enabled: false

@@ -1,0 +1,93 @@
+# Production environment overrides
+
+environment: prod
+
+# Five replicas for high availability
+replicaCount: 5
+
+image:
+  # Use immutable release tag
+  tag: "v1.0.0"
+
+# Production resource limits (increased)
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Production environment variables (override base)
+env:
+  NODE_ENV: "production"
+  LOG_LEVEL: "error"
+
+# Conservative health checks for production
+healthCheck:
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 5
+  readinessProbe:
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Production Istio sidecar with higher resources
+podAnnotations:
+  sidecar.istio.io/proxyCPU: "200m"
+  sidecar.istio.io/proxyMemory: "256Mi"
+  sidecar.istio.io/rewriteAppHTTPProbers: "true"
+
+# Enable PDB for production with majority quorum
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 3 # Maintain majority for 5 replicas
+
+# Enable autoscaling in production
+autoscaling:
+  enabled: true
+  minReplicas: 5
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# When enabled will apply the default affinity for nodes
+nodeAffinityEnabled: true
+# When enabled will override the default affinity for nodes
+nodeAffinityOverride: true
+# Spread pods across nodes for high availability
+
+nodeAffinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - paper-api-v1 # This will be dynamically set based on release and chart
+          topologyKey: kubernetes.io/hostname
+
+# When enabled will apply the default affinity for zones
+zoneAffinityEnabled: true
+# When enabled will override the default affinity for zones
+zoneAffinityOverride: true
+zoneAffinity:
+  podAntiAffinity:
+    # Zone spreading - prevents entire datacenter failure from taking out service
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 50
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - paper-api-v1 # This will be dynamically set based on release and chart
+          topologyKey: topology.kubernetes.io/zone
