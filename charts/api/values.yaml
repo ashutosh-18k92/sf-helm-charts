@@ -10,9 +10,6 @@ nameOverride: "" # Used in labels: app.kubernetes.io/name
 # Used for auto-constructing domain when virtualService.domain is empty
 environment: default
 
-#version management for canary deployments
-version: v1
-
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 

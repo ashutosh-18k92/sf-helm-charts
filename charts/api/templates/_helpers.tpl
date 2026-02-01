@@ -10,7 +10,7 @@ Fully qualified app name - used for test pod naming
 Returns Release.Name-Chart.Name for test resources
 */}}
 {{- define "api.fullname" -}}
-{{- printf "%s-%s-%s" .Release.Name .Chart.Name .Values.version | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s-%s" .Release.Name .Chart.Name .Chart.AppVersion | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -43,7 +43,7 @@ The version label is required for canary deployment strategies
 {{- define "api.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "api.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Values.version }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
 {{- end }}
 
 {{/*

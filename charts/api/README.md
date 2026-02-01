@@ -62,7 +62,6 @@ Edit `values.yaml` in your new service:
 ```yaml
 # Required: Update these for your service
 containerPort: 3000
-version: v1 # For canary deployments
 
 image:
   repository: "my-service"
@@ -168,7 +167,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- define "api.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "api.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Values.version }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
 {{- end }}
 ```
 
@@ -186,7 +185,7 @@ app.kubernetes.io/version: {{ .Values.version }}
 
 - `app.kubernetes.io/name`: Application name (from `api.fullname`)
 - `app.kubernetes.io/instance`: Release name
-- `app.kubernetes.io/version`: Version (from `values.yaml`) - **Required for canary deployments**
+- `app.kubernetes.io/version`: Version (from `Chart.AppVersion`) - **Required for canary deployments**
 
 **Resource Discovery**:
 
@@ -202,14 +201,17 @@ app.kubernetes.io/version: {{ .Values.version }}
 The `app.kubernetes.io/version` label in selectors enables canary deployment strategies:
 
 ```yaml
-# values.yaml
-version: v1  # Version for canary deployments
+# Chart.yaml (v1)
+appVersion: "v1"
+
+# Chart.yaml (v2)
+appVersion: "v2"
 
 # Deploy v1
-helm install payment-v1 . --set version=v1
+helm install payment-v1 ./chart-v1
 
 # Deploy v2 alongside v1
-helm install payment-v2 . --set version=v2
+helm install payment-v2 ./chart-v2
 
 # Service routes to both versions based on selector
 # Istio VirtualService can split traffic between v1 and v2
@@ -491,13 +493,6 @@ zoneAffinityOverride: false # Use default template
 containerPort: 3000
 ```
 
-#### Version (for Canary Deployments)
-
-```yaml
-# Version management for canary deployments
-version: v1
-```
-
 #### Image Configuration
 
 ```yaml
@@ -615,15 +610,25 @@ helm install my-service . --set virtualService.domain=api.example.com
 
 ### Canary Deployment
 
+For canary deployments, you need to maintain separate chart directories with different `appVersion` values:
+
 ```bash
+# Create chart directories for each version
+cp -r . ../payment-v1
+cp -r . ../payment-v2
+
+# Update Chart.yaml in each directory
+# payment-v1/Chart.yaml: appVersion: "v1"
+# payment-v2/Chart.yaml: appVersion: "v2"
+
 # Deploy v1
-helm install payment-v1 . --set version=v1 --set image.tag=1.0.0
+helm install payment-v1 ../payment-v1 --set image.tag=1.0.0
 
 # Deploy v2 alongside v1
-helm install payment-v2 . --set version=v2 --set image.tag=2.0.0
+helm install payment-v2 ../payment-v2 --set image.tag=2.0.0
 
-# Both versions run simultaneously
-# Configure Istio VirtualService to split traffic
+# Both versions run simultaneously with different app.kubernetes.io/version labels
+# Configure Istio VirtualService to split traffic between v1 and v2
 ```
 
 ### High Availability with Affinity
@@ -759,9 +764,10 @@ helm package . -u --version 1.0.0
 
 ### 2. Version Management
 
-- **Use semantic versioning**: `v1`, `v2`, `v1.0.0`, etc.
-- **Canary deployments**: Deploy new versions alongside old ones
-- **Traffic splitting**: Use Istio VirtualService to gradually shift traffic
+- **Use Chart.AppVersion**: Set `appVersion` in `Chart.yaml` (e.g., `v1`, `v2`, `v1.0.0`)
+- **Canary deployments**: Maintain separate chart directories with different `appVersion` values
+- **Traffic splitting**: Use Istio VirtualService to gradually shift traffic between versions
+- **Immutable versions**: Once deployed, don't change `appVersion` for a running release
 
 ### 3. Environment Variables
 
