@@ -3,10 +3,7 @@ kind: VirtualService
 metadata:
   name: {{ include "api.virtualservice.name" . }}
   namespace: {{ default .Release.Namespace .Values.virtualService.namespace  }}
-  {{- $domain := .Values.virtualService.domainOverride }}
-  {{- if not $domain }}
-    {{- $domain = .Values.virtualService.domain }}
-  {{- end }}
+  {{- $domain := .Values.virtualService.domain }}
   {{- if not $domain }}
     {{- $domain = printf "%s.local" .Values.environment }}
   {{- end }}

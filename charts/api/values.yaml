@@ -114,9 +114,6 @@ virtualService:
   # Leave empty to auto-construct as {environment}.local (e.g., dev.local, prod.local)
   # Or explicitly set to override (e.g., api.example.com)
   domain: ""
-  # Quick override for local testing - bypasses environment-based construction
-  # Example: domainOverride: "api.local" for local development
-  domainOverride: ""
   # Currently same gateway is used for all environments
   gateways:
     - superfortnight-gateway
