@@ -15,7 +15,7 @@ ROOT_DIR="/home/akumar/Desktop/SuperFortnight-Dev"
 
 CHART_DIR="$ROOT_DIR/sf-helm-charts/charts/api"
 SERVICE_DIR="$ROOT_DIR/dummy-services-repos/aggregator-service"
-OUTPUT_DIR="$ROOT_DIR/sf-helm-charts/__tmp__/aggregator-test"
+OUTPUT_DIR="$ROOT_DIR/sf-helm-charts/tmp/aggregator-test"
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
@@ -44,7 +44,7 @@ echo ""
 
 # Test 2: Verify values files exist
 echo "🔍 Test 2: Verifying values files..."
-BASE_VALUES="$SERVICE_DIR/deploy/base/values.yaml"
+BASE_VALUES="$CHART_DIR/values.yaml"
 DEV_VALUES="$SERVICE_DIR/deploy/overlays/development/values.yaml"
 
 if [ ! -f "$BASE_VALUES" ]; then

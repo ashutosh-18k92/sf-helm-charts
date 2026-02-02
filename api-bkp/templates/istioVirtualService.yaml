@@ -1,0 +1,64 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "api.virtualservice.name" . }}
+  namespace: {{ .Values.virtualService.namespace }}
+  {{- $domain := .Values.virtualService.domain }}
+  {{- if not $domain }}
+    {{- $domain = printf "%s.local" .Values.environment }}
+  {{- end }}
+  {{- $destinationHost := printf "%s.%s.svc.cluster.local" (include "api.service.name" .) .Release.Namespace}}
+  {{- $destinationPort := default .Values.containerPort .Values.service.targetPort }}
+ 
+spec:
+  hosts:
+  {{- if .Values.virtualService.hosts }}
+  {{- range $index, $host := .Values.virtualService.hosts }}
+  - {{ printf "%s.%s" $host $domain }}
+  {{- end }}
+  {{- else}}
+  - {{ printf "%s.%s.%s" .Release.Name .Values.env.NODE_ENV $domain }}
+  {{- end}}
+  - {{ printf "%s.%s" (include "api.fullname" .) $domain }}
+  gateways:
+  {{- range $index, $gateway := .Values.virtualService.gateways }}
+  - {{ $gateway }}
+  {{- end }}
+  http:
+  {{- $attempts := .Values.virtualService.attempts}}
+  {{- $perTryTimeoutSeconds := .Values.virtualService.perTryTimeoutSeconds}}
+  {{- range $index, $route := .Values.virtualService.routes }}
+  - match:
+    - uri:
+        prefix: {{ printf "/%s" $route }}
+    route:
+    - destination:
+        host: {{ $destinationHost }}
+        port:
+          number: {{ $destinationPort }}
+    retries:
+      attempts: {{ default 3 $attempts }}
+      perTryTimeout: {{ printf "%d" | default 2 $perTryTimeoutSeconds }}s
+      {{- with $.Values.virtualService.retryOn }}
+      retryOn: {{ printf "%s" (join "," .) | quote }}
+      {{- end }}
+  {{- end }}
+  - match:
+    - uri:
+        prefix: /health
+    route:
+    - destination:
+        host: {{ $destinationHost}}
+        port:
+          number: {{$destinationPort}}
+    timeout: {{$perTryTimeoutSeconds}}s
+
+  - match:
+    - uri:
+        prefix: /ready
+    route:
+    - destination:
+        host: {{ $destinationHost}}
+        port:
+          number: {{$destinationPort}}
+    timeout: {{$perTryTimeoutSeconds}}s
