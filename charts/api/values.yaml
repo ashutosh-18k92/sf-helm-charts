@@ -2,6 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Business/Service Identity (what the service IS)
+# These fields define the business service, not the Kubernetes resources
+app:
+  name: api # Business service name - MUST be overridden in overlay values
+  component: api # Component type: api | worker | consumer
+  partOf: "" # Optional: parent application/system name
+
 # This is to override the chart name.
 nameOverride: "" # Used in labels: app.kubernetes.io/name
 

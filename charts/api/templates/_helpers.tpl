@@ -1,23 +1,24 @@
 {{/*
 Expand the name of the chart.
+Uses Release.Name for resource naming (deployment identity)
 */}}
 {{- define "api.name" -}}
-{{- default .Release.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
-Fully qualified app name - used for test pod naming
-Returns Release.Name-Chart.Name for test resources
+Fully qualified app name - used for resource naming
+Returns Release.Name for clean, simple resource names
 */}}
 {{- define "api.fullname" -}}
-{{- printf "%s-%s-%s" .Release.Name .Chart.Name .Chart.AppVersion | trunc 63 | trimSuffix "-" }}
+{{- include "api.name" . }}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "api.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -26,22 +27,25 @@ These labels provide rich metadata but are NOT used for selection
 */}}
 {{- define "api.labels" -}}
 helm.sh/chart: {{ include "api.chart" . }}
-app.kubernetes.io/name: {{ include "api.fullname" . }}
+app.kubernetes.io/name: {{ .Values.app.name }}
+app.kubernetes.io/component: {{ .Values.app.component }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Values.app.partOf }}
+app.kubernetes.io/part-of: {{ .Values.app.partOf }}
+{{- end }}
 {{- end }}
 
 {{/*
 Selector labels - for pod selection only
 These labels MUST be minimal and immutable (used by Service and Deployment selectors)
-Following Kubernetes best practices: app.kubernetes.io/name + app.kubernetes.io/instance + version
+Following Kubernetes best practices: app.kubernetes.io/name + app.kubernetes.io/component + instance + version
 The version label is required for canary deployment strategies
 */}}
 {{- define "api.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "api.fullname" . }}
+app.kubernetes.io/name: {{ .Values.app.name }}
+app.kubernetes.io/component: {{ .Values.app.component }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 {{- end }}
