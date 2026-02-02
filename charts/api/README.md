@@ -1,10 +1,19 @@
 # API Helm Chart
 
+> [!IMPORTANT]
+> **This chart is a TEMPLATE for creating service-specific charts.**
+>
+> - **DO NOT** reference this chart as a runtime dependency in Kustomize or ArgoCD
+> - **DO** copy this chart to create your own service-specific chart
+> - Each service should own its chart in `charts/service-name/` within the service repository
+> - See [Service-Specific Charts Pattern](../../gitops-v3/gitops-docs/docs/gitops/guides/service-specific-charts.md) for details
+
 A production-ready Helm chart template for deploying API microservices on Kubernetes with Istio service mesh integration.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [How to Use This Template](#how-to-use-this-template)
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Architecture & Design Decisions](#architecture--design-decisions)
@@ -15,7 +24,7 @@ A production-ready Helm chart template for deploying API microservices on Kubern
 
 ## Overview
 
-This Helm chart provides a standardized, production-ready template for deploying API microservices with:
+This Helm chart provides a standardized, production-ready **template** for creating service-specific charts. Each service should copy this template and customize it for their needs.
 
 - Kubernetes Deployment, Service, and HPA resources
 - Istio VirtualService for traffic management
@@ -36,6 +45,61 @@ This Helm chart provides a standardized, production-ready template for deploying
 - ✅ **Standard Labels**: Kubernetes `app.kubernetes.io/*` labels with canary deployment support
 - ✅ **Explicit Naming**: Resource-specific naming helpers for clarity
 - ✅ **Flexible Affinity**: Default node and zone affinity templates with override capability
+
+## How to Use This Template
+
+### Service-Specific Chart Pattern
+
+Each service should **own its own Helm chart** by using this template:
+
+```bash
+# Use Helm starter chart (recommended - official Helm way)
+helm repo add sf-charts https://ashutosh-18k92.github.io/sf-helm-charts
+
+# Create your service chart from the starter
+mkdir -p charts
+helm create charts/your-service --starter=sf-charts/api
+
+# Customize the chart
+cd charts/your-service
+vim Chart.yaml  # Update name, version, description
+vim values.yaml # Update app.name, app.component, etc.
+```
+
+### Why Service-Specific Charts?
+
+✅ **Team Autonomy**: Your team owns and controls the base configuration  
+✅ **No Kustomize Limitations**: Chart is a first-class citizen in your repo  
+✅ **Independent Evolution**: Version and evolve your chart independently  
+✅ **Helm Dependencies**: Use Helm's dependency system for complex services
+
+### Workflow
+
+1. **Create** your service chart using the starter (recommended):
+
+   ```bash
+   helm repo add sf-charts https://ashutosh-18k92.github.io/sf-helm-charts
+   mkdir -p charts
+   helm create charts/your-service --starter=sf-charts/api
+   ```
+
+2. **Customize** `Chart.yaml` and `values.yaml` for your service
+
+3. **Set up automated publishing** with GitHub Actions (see [Publishing Guide](../../gitops-v3/gitops-docs/docs/gitops/guides/publishing-helm-charts.md))
+
+4. **Reference** from Kustomize overlays in `deploy/overlays/`
+
+5. **Deploy** via ArgoCD ApplicationSets
+
+See the [Service-Specific Charts Pattern Guide](../../gitops-v3/gitops-docs/docs/gitops/guides/service-specific-charts.md) for complete details.
+
+### What NOT to Do
+
+❌ **DO NOT** reference this chart as a remote Helm chart in Kustomize  
+❌ **DO NOT** use this chart as a runtime dependency  
+❌ **DO NOT** try to share this chart across multiple services
+
+**Instead**: Copy this template and create your own service-specific chart.
 
 ## Getting Started
 

@@ -1,11 +1,37 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "required": [ "containerPort", "image", "service" ],
+    "required": [ "app", "containerPort", "image", "service" ],
     "properties": {
+        "app": {
+            "type": "object",
+            "description": "Business/Service Identity",
+            "required": [ "name", "component" ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Business service name",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+                },
+                "component": {
+                    "type": "string",
+                    "description": "Component type",
+                    "enum": [ "api", "worker", "consumer" ]
+                },
+                "partOf": {
+                    "type": "string",
+                    "description": "Parent application/system name"
+                }
+            }
+        },
+        "environment": {
+            "type": "string",
+            "description": "Environment identifier"
+        },
         "containerPort": {
             "type": "integer",
-            "description": "The port number on which the container listens",
+            "description": "Container port number",
             "minimum": 1,
             "maximum": 65535
         },
@@ -61,7 +87,7 @@
                 },
                 "namespace": {
                     "type": "string",
-                    "description": "Namespace where the VirtualService will be created (typically istio-system)",
+                    "description": "Namespace where the VirtualService will be created",
                     "minLength": 1,
                     "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
                 },
@@ -79,7 +105,7 @@
                 },
                 "gateways": {
                     "type": "array",
-                    "description": "List of gateways to attach to the VirtualService",
+                    "description": "List of gateways to attach",
                     "items": {
                         "type": "string",
                         "minLength": 1
@@ -106,7 +132,7 @@
                 },
                 "retryOn": {
                     "type": "array",
-                    "description": "Conditions for retry (Istio retry conditions)",
+                    "description": "Conditions for retry",
                     "items": {
                         "type": "string",
                         "enum": [
