@@ -3,6 +3,16 @@ entries:
   api:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-02-02T02:40:59.892125213Z"
+    description: A Helm chart for Kubernetes
+    digest: 776a109d9da6a637420a702240358d155d1769ded3e1e7063332af69e625e528
+    name: api
+    type: application
+    urls:
+    - https://github.com/ashutosh-18k92/sf-helm-charts/releases/download/api-0.1.9/api-0.1.9.tgz
+    version: 0.1.9
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-02-02T00:53:06.291078365Z"
     description: A Helm chart for Kubernetes
     digest: 43f0c66e03a4713dbbc15b24533fbb085763a5783f785102231fafb996d1de50
@@ -91,4 +101,4 @@ entries:
     urls:
     - https://github.com/ashutosh-18k92/sf-helm-charts/releases/download/api-0.1.0/api-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-02T00:53:06.291113058Z"
+generated: "2026-02-02T02:40:59.892169205Z"
