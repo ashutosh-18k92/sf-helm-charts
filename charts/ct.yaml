@@ -1,0 +1,20 @@
+# chart-testing configuration
+charts_dir: charts
+
+lint:
+  # pass extra args to `helm lint` (strict is recommended in CI)
+  extra_args:
+    - --strict
+
+  # number of parallel helm lint jobs (optional)
+  concurrency: 4
+
+install:
+  # maximum wait time for chart installs during `ct install` (format: Xm or Xs)
+  timeout: 10m
+
+  # cleanup installed releases after tests (recommended for CI)
+  cleanup: true
+
+# Optional debug toggle
+# debug: true

@@ -2,14 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "api.service.name" . }}
-  labels:
-    {{- include "api.labels" . | nindent 4 }}
+  labels: {{- include "api.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.syncwave.service | quote }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ default .Values.containerPort .Values.service.targetPort }}
+    - port: {{ default .Values.containerPort .Values.service.port }}
+      targetPort: {{ default .Values.servicePort .Values.service.targetPort }}
       protocol: TCP
       name: http
-  selector:
-    {{- include "api.selectorLabels" . | nindent 4 }}
+  selector: {{- include "api.selectorLabels" . | nindent 4 }}

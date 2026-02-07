@@ -7,11 +7,22 @@ app:
 # Environment identifier
 environment: default
 
+# Syncwave ordering
+syncwave:
+  serviceAccount: 0
+  service: 1
+  deployment: 2
+  hpa: 3
+  ingress: 4
+
 # Replica count
 replicaCount: 1
 
 # Container port
 containerPort: 3000
+
+# Service port
+servicePort: 3000
 
 # Container image
 image:
